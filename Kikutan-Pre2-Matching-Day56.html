@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+    <title>キクタン準2級 Day 56</title>
+<script src="auth.js"></script>
+    <style>
+        :root {
+            --uguisu: #928c36;
+            --dark-bg: #222;
+        }
+
+        /* --- 基本フォント設定 --- */
+        body {
+            font-family: "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
+            margin: 0; padding: 0;
+        }
+
+        /* 選択肢チップ専用フォント */
+        .word-chip {
+            font-family: "Chalkboard SE", "Chalkboard", "Comic Neue", "Comic Sans MS", cursive, sans-serif !important;
+        }
+
+        /* --- ブラウザ用スタイル --- */
+        body { background-color: var(--dark-bg); color: #eee; }
+
+        .header { text-align: center; padding: 15px; background: #1a1a1a; border-bottom: 2px solid var(--uguisu); position: sticky; top: 0; z-index: 1000; }
+        h1 { color: var(--uguisu); margin: 0 0 10px 0; font-size: 1.3rem; }
+
+        .main-wrapper { max-width: 850px; margin: 20px auto; padding: 0 15px; }
+
+        .section-group { display: flex; gap: 40px; margin-bottom: 50px; align-items: flex-start; }
+
+        .quiz-part { flex: 1.4; }
+        /* 選択肢の開始位置を和訳にピッタリ合わせる */
+        .pool-part { flex: 1; position: sticky; top: 120px; padding-top: 52px; }
+
+        .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 10px; }
+        button { padding: 10px 18px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; font-family: inherit; }
+        .level-btn { background: #555; color: white; }
+        .level-btn.active { background: var(--uguisu); }
+        .check-btn { background: #28a745; color: white; }
+        .shuffle-btn { background: #4A90E2; color: white; }
+
+        .set-title { border-left: 6px solid var(--uguisu); padding-left: 12px; margin-bottom: 15px; font-weight: bold; font-size: 1.2rem; color: var(--uguisu); }
+
+        table { width: 100%; border-collapse: collapse; }
+        td { padding: 10px 5px; vertical-align: middle; }
+        .jp-column { width: 45%; font-size: 1.05rem; }
+        
+        .drop-wrapper { display: flex; gap: 8px; }
+        .drop-zone {
+            min-width: 170px; min-height: 42px; border-bottom: 2px solid var(--uguisu);
+            display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05);
+        }
+        .lv2-zone { min-width: 85px; }
+
+        .choice-pool { display: grid; gap: 10px; }
+        .pool-lv1 { grid-template-columns: 1fr; }
+        .pool-lv2 { grid-template-columns: 1fr 1fr; }
+
+        .choice-slot { width: 100%; min-height: 44px; border: 1px dashed #555; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+
+        .word-chip {
+            padding: 8px 12px; background-color: #fff; border: 2px solid var(--uguisu); border-radius: 8px;
+            cursor: pointer; user-select: none; font-size: 1rem; font-weight: bold; color: #333; box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            white-space: nowrap;
+        }
+        .word-chip.selected { background-color: #ffeb3b; }
+
+        .result-mark { font-size: 1.6rem; min-width: 30px; text-align: center; }
+        .correct { color: #4ade80; }
+        .incorrect { color: #f87171; }
+
+        /* --- スマホ縦向き用 (PCのデザインを維持しつつ幅を調整) --- */
+        @media (max-width: 600px) {
+            .main-wrapper { padding: 0 5px; }
+            .section-group { gap: 10px; }
+            .quiz-part { flex: 1.5; }
+            .pool-part { flex: 0.6; padding-top: 45px; }
+            .jp-column { font-size: 0.70rem; width: 50%; }
+            .drop-zone { min-width: 110px; min-height: 32px; font-size: 0.8rem; }
+            .lv2-zone { min-width: 55px; }
+            .word-chip { padding: 3px 5px; font-size: 0.8rem; }
+            .choice-slot { min-height: 34px; }
+            .set-title { font-size: 0.95rem; }
+        }
+
+        /* --- 印刷用ワークシートスタイル (A4一枚・黒字) --- */
+        @media print {
+            @page { size: A4; margin: 10mm; }
+            body { background: white !important; color: black !important; font-family: "Hiragino Maru Gothic ProN", sans-serif !important; }
+            .header, .controls, .result-mark, .choice-slot:empty { display: none !important; }
+            
+            .main-wrapper { max-width: 90% !important; margin: 0 auto !important; padding: 0; }
+            h1.print-only { display: block !important; text-align: center; font-size: 16pt; margin-bottom: 20px; color: black !important; border-bottom: 2px solid black; padding-bottom: 5px; }
+            
+            .section-group { display: flex !important; flex-direction: row !important; gap: 40px; margin-bottom: 25px !important; page-break-inside: avoid !important; }
+            .quiz-part { flex: 1.5; }
+            .pool-part { flex: 1; padding-top: 45px; border-left: 1px solid #eee; padding-left: 20px; }
+            
+            .set-title { color: black !important; border-left: 4px solid black !important; font-size: 12pt; margin-bottom: 10px; }
+            .jp-column { font-size: 10.5pt; color: black !important; padding: 8px 2px !important; }
+            .drop-zone { border-bottom: 1px solid black !important; background: none !important; min-height: 22px; }
+            
+            .choice-pool { display: grid !important; border: none !important; padding: 0 !important; }
+            .word-chip { 
+                background: none !important; border: none !important; box-shadow: none !important; 
+                color: black !important; font-size: 11pt !important; padding: 2px 0 !important;
+                text-align: left; font-weight: bold !important;
+            }
+            .choice-slot { border: none !important; min-height: auto !important; margin-bottom: 2px; }
+            .pool-lv1 { grid-template-columns: 1fr !important; }
+            .pool-lv2 { grid-template-columns: 1fr 1fr !important; gap: 2px 10px !important; }
+        }
+
+        .print-only { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>キクタン準2級 Day 56</h1>
+    <div class="controls">
+        <button id="btn-lv1" class="level-btn active" onclick="changeLevel(1)">Level 1</button>
+        <button id="btn-lv2" class="level-btn" onclick="changeLevel(2)">Level 2</button>
+        <button class="shuffle-btn" onclick="init()">Shuffle</button>
+        <button class="check-btn" onclick="checkAnswers()">Check</button>
+        <button class="level-btn" style="background:#666" onclick="window.print()">Print</button>
+    </div>
+</div>
+
+<h1 class="print-only">キクタン準2級 Day 56</h1>
+
+<div class="main-wrapper" id="content-root"></div>
+
+<script>
+const fullData = [
+    { jp: "〜でいっぱいである", en: "be full of", v: "be full", p: "of" },
+    { jp: "〜で作られている（原料）", en: "be made from", v: "be made", p: "from" },
+    { jp: "〜にある", en: "be located in", v: "be located", p: "in" },
+    { jp: "〜に対して責任がある", en: "be responsible for", v: "be responsible", p: "for" },
+    { jp: "〜で作られている（材料）", en: "be made of", v: "be made", p: "of" },
+    { jp: "〜で覆われている", en: "be covered with", v: "be covered", p: "with" },
+    { jp: "〜で満ちている", en: "be filled with", v: "be filled", p: "with" },
+    { jp: "〜に喜んでいる", en: "be pleased with", v: "be pleased", p: "with" },
+    { jp: "〜に満足している", en: "be satisfied with", v: "be satisfied", p: "with" },
+    { jp: "〜を欠席している", en: "be absent from", v: "be absent", p: "from" },
+    { jp: "〜を認識している", en: "be aware of", v: "be aware", p: "of" },
+    { jp: "〜で忙しい", en: "be busy with", v: "be busy", p: "with" },
+    { jp: "〜を使い終わる", en: "be finished with", v: "be finished", p: "with" },
+    { jp: "〜に感動する", en: "be impressed by", v: "be impressed", p: "by" },
+    { jp: "〜に参加している", en: "be involved in", v: "be involved", p: "in" },
+    { jp: "〜として知られている", en: "be known as", v: "be known", p: "as" }
+];
+
+let currentLevel = 1;
+let selectedChip = null;
+
+function shuffle(array) { return [...array].sort(() => Math.random() - 0.5); }
+
+function init() {
+    const root = document.getElementById('content-root');
+    root.innerHTML = '';
+    selectedChip = null;
+
+    const shuffled = shuffle(fullData);
+    const sections = [ 
+        { id: "s1", title: "Section 1", items: shuffled.slice(0, 8) }, 
+        { id: "s2", title: "Section 2", items: shuffled.slice(8, 16) } 
+    ];
+
+    sections.forEach(sec => {
+        const group = document.createElement('div');
+        group.className = 'section-group';
+
+        const quizPart = document.createElement('div');
+        quizPart.className = 'quiz-part';
+        quizPart.innerHTML = `<div class="set-title">${sec.title}</div>`;
+        const table = document.createElement('table');
+        
+        let poolChoices = [];
+        sec.items.forEach(item => {
+            const tr = document.createElement('tr');
+            const correct = currentLevel === 1 ? item.en : `${item.v}|${item.p}`;
+            const zClass = currentLevel === 2 ? 'lv2-zone' : '';
+            tr.innerHTML = `
+                <td class="jp-column">${item.jp}</td>
+                <td class="answer-column" data-correct="${correct}">
+                    <div class="drop-wrapper">
+                        <div class="drop-zone ${zClass}" data-sec="${sec.id}" onclick="handleZoneClick(event)"></div>
+                        ${currentLevel === 2 ? `<div class="drop-zone ${zClass}" data-sec="${sec.id}" onclick="handleZoneClick(event)"></div>` : ''}
+                    </div>
+                </td>
+                <td><span class="result-mark"></span></td>
+            `;
+            table.appendChild(tr);
+            if(currentLevel === 1) poolChoices.push(item.en);
+            else { poolChoices.push(item.v); poolChoices.push(item.p); }
+        });
+        quizPart.appendChild(table);
+
+        const poolPart = document.createElement('div');
+        poolPart.className = 'pool-part';
+        const poolContainer = document.createElement('div');
+        poolContainer.className = 'choice-pool ' + (currentLevel === 1 ? 'pool-lv1' : 'pool-lv2');
+
+        shuffle(poolChoices).forEach((text, idx) => {
+            const slot = document.createElement('div');
+            slot.className = 'choice-slot';
+            slot.id = `slot-${sec.id}-${idx}`;
+            
+            const chip = document.createElement('div');
+            chip.className = 'word-chip';
+            chip.textContent = text;
+            chip.id = `chip-${sec.id}-${idx}`;
+            chip.dataset.origin = slot.id;
+            chip.onclick = handleChipClick;
+            
+            slot.appendChild(chip);
+            poolContainer.appendChild(slot);
+        });
+        poolPart.appendChild(poolContainer);
+
+        group.appendChild(quizPart);
+        group.appendChild(poolPart);
+        root.appendChild(group);
+    });
+}
+
+function handleChipClick(e) {
+    const chip = e.currentTarget;
+    if (chip.parentNode.classList.contains('drop-zone')) {
+        document.getElementById(chip.dataset.origin).appendChild(chip);
+        chip.classList.remove('selected');
+        selectedChip = null;
+        return;
+    }
+    if (selectedChip) selectedChip.classList.remove('selected');
+    if (selectedChip === chip) selectedChip = null;
+    else { selectedChip = chip; chip.classList.add('selected'); }
+}
+
+function handleZoneClick(e) {
+    const zone = e.currentTarget;
+    if (selectedChip) {
+        if (zone.children.length > 0) {
+            const guest = zone.children[0];
+            document.getElementById(guest.dataset.origin).appendChild(guest);
+        }
+        zone.appendChild(selectedChip);
+        selectedChip.classList.remove('selected');
+        selectedChip = null;
+    } else if (zone.children.length > 0) {
+        const guest = zone.children[0];
+        document.getElementById(guest.dataset.origin).appendChild(guest);
+    }
+}
+
+function changeLevel(lv) {
+    currentLevel = lv;
+    document.getElementById('btn-lv1').classList.toggle('active', lv === 1);
+    document.getElementById('btn-lv2').classList.toggle('active', lv === 2);
+    init();
+}
+
+function checkAnswers() {
+    document.querySelectorAll('.answer-column').forEach(td => {
+        const correct = td.getAttribute('data-correct');
+        const zones = td.querySelectorAll('.drop-zone');
+        const mark = td.nextElementSibling.querySelector('.result-mark');
+        let userAns = currentLevel === 1 ? zones[0].textContent.trim() : `${zones[0].textContent.trim()}|${zones[1].textContent.trim()}`;
+        let isCorrect = (userAns !== "" && userAns === correct && !userAns.includes("||") && userAns !== "|");
+        mark.textContent = isCorrect ? "○" : "×";
+        mark.className = "result-mark " + (isCorrect ? "correct" : "incorrect");
+    });
+}
+
+init();
+</script>
+</body>
+</html>
